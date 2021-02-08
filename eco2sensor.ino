@@ -10,6 +10,9 @@ Adafruit_SGP30 sgp;
 int i = 15;
 long last_millis = 0;
 
+const long reset_max = 1200;// reset every 1h e.g. wait_msec*reset_max = 3600,000[msec]
+const int wait_msec = 3000;
+long reset_count = 0;
 
 void setup() {
 //  M5.begin(true, false, true, true);
@@ -50,14 +53,22 @@ void loop() {
     Serial.println("Measurement failed");
     return;
   }
+  reset_count++;
+  if(reset_count > reset_max){
+    sgp.IAQinit();
+    sleep(wait_msec);
+    reset_count = 0;
+    return;
+  }
 
   M5.Lcd.fillScreen(BLACK);
   M5.Lcd.setCursor(0, 15);
   
   M5.Lcd.setTextSize(2);
-  M5.Lcd.printf("eCO2:\n",sgp.eCO2);
+  int eco2 = (sgp.eCO2>999)? 999: sgp.eCO2;
+  M5.Lcd.printf("eCO2:\n", eco2);
   M5.Lcd.setTextSize(3);
-  M5.Lcd.printf("%d ppm\n",sgp.eCO2);
+  M5.Lcd.printf("%d ppm\n", sgp.eCO2);
   
   M5.Lcd.setTextSize(2);
   M5.Lcd.printf("TVOC:%d ppb\n",sgp.TVOC);
@@ -71,5 +82,5 @@ void loop() {
   }
   Serial.print("RawTVOC "); Serial.print(sgp.rawEthanol); Serial.print(" ppb\t");
   Serial.print("RaweCO2 "); Serial.print(sgp.rawH2); Serial.println(" ppm");
-  delay(3000);
+  delay(wait_msec);
 }
