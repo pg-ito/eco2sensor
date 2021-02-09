@@ -27,7 +27,7 @@ void setup() {
     Serial.println("Sensor not found :(");
     while (1);
   }
-
+  // sgp.IAQinit();
   Serial.print("Found SGP30 serial #");
   Serial.print(sgp.serialnumber[0], HEX);
   Serial.print(sgp.serialnumber[1], HEX);
@@ -53,22 +53,24 @@ void loop() {
     Serial.println("Measurement failed");
     return;
   }
-  reset_count++;
+/*  reset_count++;
   if(reset_count > reset_max){
+    Serial.println("reset_max reached");
     sgp.IAQinit();
     sleep(wait_msec);
     reset_count = 0;
     return;
   }
-
+*/
   M5.Lcd.fillScreen(BLACK);
   M5.Lcd.setCursor(0, 15);
   
   M5.Lcd.setTextSize(2);
-  int eco2 = (sgp.eCO2>999)? 999: sgp.eCO2;
+  int eco2 = sgp.eCO2;
+  eco2 = (eco2>999)? 999: eco2;
   M5.Lcd.printf("eCO2:\n", eco2);
   M5.Lcd.setTextSize(3);
-  M5.Lcd.printf("%d ppm\n", sgp.eCO2);
+  M5.Lcd.printf("%d ppm\n", eco2);
   
   M5.Lcd.setTextSize(2);
   M5.Lcd.printf("TVOC:%d ppb\n",sgp.TVOC);
